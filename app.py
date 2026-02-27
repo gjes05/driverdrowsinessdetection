@@ -5,12 +5,8 @@ import mediapipe as mp
 import time
 import av
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
+from tflite_runtime.interpreter import Interpreter
 
-try:
-    from tflite_runtime.interpreter import Interpreter
-except ImportError:
-    import tensorflow as tf
-    Interpreter = tf.lite.Interpreter
 # -------------------------
 # Load models once at startup
 # -------------------------
