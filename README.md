@@ -1,4 +1,4 @@
-# 🚗 DrowsyGuard
+# 🚗 Drowsy Guard - Real-Time Driver Drowsiness Detection 
 
 Real-time driver drowsiness detection using ResNet50V2 and MediaPipe, running locally via webcam.
 
@@ -7,12 +7,6 @@ Real-time driver drowsiness detection using ResNet50V2 and MediaPipe, running lo
 ## Overview
 
 DrowsyGuard detects driver drowsiness in real-time using a webcam feed. It extracts the eye region using MediaPipe facial landmarks and classifies it as drowsy or non-drowsy using a fine-tuned ResNet50V2 model. A visual alert is triggered if drowsiness is sustained for more than 2 seconds.
-
----
-
-## Demo
-
-> Insert a GIF or screenshot here
 
 ---
 
@@ -90,6 +84,7 @@ Sustained Alert if Drowsy ≥ 2 seconds
 ├── videofeed.py              # Real-time webcam inference
 ├── drowsiness.ipynb          # Model training and evaluation
 ├── my_model.keras            # Keras inference model
+├── requirements.txt
 └── README.md
 ```
 
