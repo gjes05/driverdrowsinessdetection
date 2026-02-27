@@ -1,14 +1,6 @@
-opencv-python
-numpy
-Pillow
-keras
-matplotlib
-scikit-learn
-mediapipe
-seaborn
 streamlit
 streamlit-webrtc
+ai-edge-litert
+mediapipe
 av
-tflite-runtime==2.14.0
-
-
+numpy==1.26.4
