@@ -1,7 +1,9 @@
-streamlit
-streamlit-webrtc
-tf-keras
+tensorflow
+opencv-python
+numpy
+Pillow
+matplotlib
+scikit-learn
+keras
 mediapipe
-opencv-python-headless
-av
-numpy==1.26.4
+seaborn
