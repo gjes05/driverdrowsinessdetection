@@ -1,18 +1,17 @@
 import streamlit as st
 import cv2
 import numpy as np
-import tensorflow as tf
 import mediapipe as mp
 import time
 import av
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
+import tf_keras
 
 # -------------------------
 # Load models once at startup
 # -------------------------
-from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
-
 @st.cache_resource
 def load_models():
     base_options = python.BaseOptions(model_asset_path="face_landmarker.task")
@@ -22,23 +21,12 @@ def load_models():
         num_faces=1
     )
     face_landmarker = vision.FaceLandmarker.create_from_options(options)
-    
-    # Load TFLite instead of Keras
-    interpreter = tf.lite.Interpreter(model_path="my_model.tflite")
-    interpreter.allocate_tensors()
-    
-    return face_landmarker, interpreter
+    model = tf_keras.models.load_model("my_model.keras")
+    return face_landmarker, model
 
-face_landmarker, interpreter = load_models()
+face_landmarker, model = load_models()
 eye_indices = [63, 117, 293, 346, 9]
 class_names = ['Non-Drowsy', 'Drowsy']
-
-def run_tflite_inference(processed_eye):
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
-    interpreter.set_tensor(input_details[0]['index'], processed_eye)
-    interpreter.invoke()
-    return interpreter.get_tensor(output_details[0]['index'])
 
 # -------------------------
 # Helper functions
@@ -79,24 +67,24 @@ class DrowsinessDetector(VideoProcessorBase):
         self.drowsy_duration = 2
         self.label = "Non-Drowsy"
         self.confidence = 0.0
-        self.frame_count = 0          # ADD
-        self.inference_interval = 3   # ADD — only run model every 3 frames
+        self.frame_count = 0
+        self.inference_interval = 3
+        self.bbox = None
 
     def recv(self, frame):
         img = frame.to_ndarray(format="bgr24")
         self.frame_count += 1
 
-        # Only run inference every N frames
         if self.frame_count % self.inference_interval == 0:
             eye_region, bbox = extract_eye_region(img)
 
             if eye_region is not None and eye_region.size > 0:
                 processed = preprocess_eye_region(eye_region)
-                predictions = run_tflite_inference(processed)
+                predictions = model(processed, training=False).numpy()
                 predicted_class = np.argmax(predictions, axis=1)[0]
                 self.confidence = predictions[0][predicted_class]
                 self.label = class_names[predicted_class]
-                self.bbox = bbox  # cache it
+                self.bbox = bbox
 
                 if self.label == 'Drowsy':
                     if self.drowsy_start_time is None:
@@ -104,8 +92,7 @@ class DrowsinessDetector(VideoProcessorBase):
                 else:
                     self.drowsy_start_time = None
 
-        # Always draw using cached label/bbox from last inference
-        if hasattr(self, 'bbox') and self.bbox:
+        if self.bbox:
             x_min, y_min, x_max, y_max = self.bbox
             cv2.rectangle(img, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
 
@@ -122,9 +109,8 @@ class DrowsinessDetector(VideoProcessorBase):
 # -------------------------
 # Streamlit UI
 # -------------------------
-st.title("🚗 Driver Drowsiness Detection")
-st.markdown("Real-time drowsiness detection using facial landmarks and deep learning.")
-
+st.title("🚗 DrowsyGuard")
+st.markdown("Real-time driver drowsiness detection using deep learning.")
 st.info("Click **START** to enable your webcam. Allow camera access when prompted.")
 
 webrtc_streamer(
@@ -135,4 +121,4 @@ webrtc_streamer(
 )
 
 st.markdown("---")
-st.caption("Model: Custom CNN | Landmarks: MediaPipe Face Landmarker")
+st.caption("Model: ResNet50V2 | Landmarks: MediaPipe Face Landmarker")

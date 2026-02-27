@@ -1,6 +1,7 @@
 streamlit
 streamlit-webrtc
-ai-edge-litert
+tf-keras
 mediapipe
+opencv-python-headless
 av
 numpy==1.26.4
