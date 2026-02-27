@@ -1,11 +1,11 @@
 import streamlit as st
 import cv2
 import numpy as np
+import tensorflow as tf
 import mediapipe as mp
 import time
 import av
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
-from tflite_runtime.interpreter import Interpreter
 
 # -------------------------
 # Load models once at startup
@@ -22,11 +22,11 @@ def load_models():
         num_faces=1
     )
     face_landmarker = vision.FaceLandmarker.create_from_options(options)
-
-    # Lightweight TFLite runtime instead of full TensorFlow
-    interpreter = Interpreter(model_path="my_model.tflite")
+    
+    # Load TFLite instead of Keras
+    interpreter = tf.lite.Interpreter(model_path="my_model.tflite")
     interpreter.allocate_tensors()
-
+    
     return face_landmarker, interpreter
 
 face_landmarker, interpreter = load_models()
