@@ -1,7 +1,6 @@
 opencv-python
 numpy
 Pillow
-tensorflow
 keras
 matplotlib
 scikit-learn
