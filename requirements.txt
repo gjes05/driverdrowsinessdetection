@@ -1,0 +1,13 @@
+opencv-python
+numpy
+Pillow
+tensorflow
+keras
+matplotlib
+scikit-learn
+mediapipe
+seaborn
+streamlit
+streamlit-webrtc
+opencv-python-headless
+av
